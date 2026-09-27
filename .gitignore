@@ -1,0 +1,15 @@
+# Maven / Java
+backend/target/
+backend/data/
+backend/.idea/
+*.iml
+
+# Node
+frontend/node_modules/
+frontend/dist/
+
+.DS_Store
+.env
+.env.local
+oauth.properties
+.idea/
