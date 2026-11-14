@@ -48,8 +48,11 @@ public class DoseService {
     @Transactional
     public void delete(Long id) {
         Dose dose = doses.findById(id).orElseThrow(() -> new DoseNotFoundException(id));
-        requireMedicine(dose.getMedicine().getId());
-        doses.delete(dose);
+        Medicine medicine = requireMedicine(dose.getMedicine().getId());
+        boolean removed = medicine.getDoses().removeIf(existing -> id.equals(existing.getId()));
+        if (!removed) {
+            throw new DoseNotFoundException(id);
+        }
     }
 
     private Medicine requireMedicine(Long medicineId) {

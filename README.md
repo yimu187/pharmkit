@@ -31,11 +31,9 @@ Her kullanıcının ilaçları ayrıdır.
 
 ## Veritabanı
 
-Şu an **H2 file** kullanılıyor: ilişkisel bir veritabanı. Uygulama restart olsa da kayıtlar silinmez.
+Uygulama **Neon PostgreSQL** kullanır. JDBC adresi ve kullanıcı adı `backend/src/main/resources/application.properties` içindedir. Parola `~/.ilac-takip/oauth.properties` dosyasındadır; bu dosya repoya girmez.
 
-Dosya: `~/.ilac-takip/db.mv.db`
-
-İleride PostgreSQL’e geçmek için `backend/src/main/resources/application.properties` içindeki JDBC URL, kullanıcı adı ve sürücüyü değiştirmek yeter. JPA entity’ler aynı kalır.
+Testler bellek içi H2 ile çalışır.
 
 ## Çalıştırma
 

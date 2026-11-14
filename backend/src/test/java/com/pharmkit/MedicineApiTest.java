@@ -13,6 +13,8 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.nullValue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -89,6 +91,48 @@ class MedicineApiTest {
         mockMvc.perform(get("/api/medicines/" + id + "/doses"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)));
+    }
+
+    @Test
+    void deleteDoseRemovesItFromMedicine() throws Exception {
+        String body = mockMvc.perform(post("/api/medicines")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "name": "Nurofen",
+                                  "purchasedOn": "2026-09-01",
+                                  "expiresOn": "2027-09-01",
+                                  "intakeSchedule": "Gerektiğinde",
+                                  "homeLocation": "Çekmece"
+                                }
+                                """))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        Integer medicineId = JsonPath.read(body, "$.id");
+
+        String doseBody = mockMvc.perform(post("/api/medicines/" + medicineId + "/doses")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                { "takenAt": "2026-10-01T08:00:00" }
+                                """))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        Integer doseId = JsonPath.read(doseBody, "$.id");
+
+        mockMvc.perform(delete("/api/doses/" + doseId))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(get("/api/medicines/" + medicineId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.doseCount").value(0))
+                .andExpect(jsonPath("$.doses", hasSize(0)))
+                .andExpect(jsonPath("$.lastTakenAt").value(nullValue()));
     }
 
     @Test
